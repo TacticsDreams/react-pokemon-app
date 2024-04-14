@@ -8,11 +8,29 @@ const App: FunctionComponent = () => {
     useEffect(() =>{
         setPokemons(POKEMONS);
     }, []);
-    
+
     return (
     <div>
-        <h1>Pokédex</h1>
-        <p>Il y a couramment {pokemons.length} Pokémons dans le PokéDex.</p>
+        <h1 className='center'>Pokédex</h1>
+        <ul className='container'>
+            <div className="row">
+                {pokemons.map(({id, name, picture, created}) => (
+                    <div className='col s6 m4' key={id}>
+                        <div className='card horizontal'>
+                            <div className='card-image'>
+                                <img src={picture} alt={name} />
+                            </div>
+                            <div className="card-stacked">
+                                <div className="card-content">
+                                    <p>{name}</p>
+                                    <p><small>{created.toString()}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </ul>
     </div>
 )
 }
