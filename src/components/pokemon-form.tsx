@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import Pokemon from '../models/pokemon';
 import formatType from '../helpers/format-type';
   
@@ -7,7 +8,7 @@ type Props = {
 };
 
 type Field = {
-    value?: any,
+    value: any,
     error?: string,
     isValid?: boolean
 }
@@ -27,6 +28,8 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
         cp: { value: pokemon.cp, isValid: true},
         types: {value: pokemon.types, isValid: true}
     })
+
+    const history = useHistory();
   
   const types: string[] = [
     'Plante', 'Feu', 'Eau', 'Insecte', 'Normal', 'Electrik',
@@ -40,12 +43,12 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const fieldName: string = e.target.name;
     const fieldValue: string = e.target.value;
-    const newField: Field = {
+    
+    setForm(prevForm => ({
+        ...prevForm,
         [fieldName]: { value: fieldValue }
-    };
-
-    setForm({ ...form, ...newField});
-  }
+    }));
+}
 
   const selectType = (type: string, e: React.ChangeEvent<HTMLInputElement>): void => {
     const checked = e.target.checked;
@@ -61,9 +64,15 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
 
     setForm({...form, ...{types: newField}});
   }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(form);
+    history.push(`/pokemons/${pokemon.id}`);
+  }
    
   return (
-    <form>
+    <form onSubmit={e => handleSubmit(e)}>
       <div className="row">
         <div className="col s12 m8 offset-m2">
           <div className="card hoverable"> 
@@ -93,7 +102,7 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
                   {types.map(type => (
                     <div key={type} style={{marginBottom: '10px'}}>
                       <label>
-                        <input id={type} type="checkbox" className="filled-in" value={type} checked={hasType(type)}></input>
+                        <input id={type} type="checkbox" className="filled-in" value={type} checked={hasType(type)} onChange={e => selectType(type, e)}></input>
                         <span>
                           <p className={formatType(type)}>{ type }</p>
                         </span>
