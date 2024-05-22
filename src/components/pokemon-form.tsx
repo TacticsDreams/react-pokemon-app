@@ -67,10 +67,63 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(form);
-    history.push(`/pokemons/${pokemon.id}`);
+    const isFormValid = validateForm();
+
+    if(isFormValid) {
+      history.push(`/pokemons/${pokemon.id}`);
+    }
+  }
+
+  const validateForm = () => {
+    let newForm: Form = form;
+
+    // Validator du nom
+    if(!/^[a-zA-Zàéè ]{3,25}$/.test(form.name.value)) {
+      const errorMsg: string = 'Le nom du pokémon est requis (3-25)';
+      const newField: Field = { value: form.name.value, error: errorMsg, isValid: false };
+      newForm = { ...newForm, ...{name: newField}};
+    } else {
+      const newField: Field = { value: form.name.value, error: '', isValid: true };
+      newForm = { ...newForm, ...{name: newField}};
+    }
+    
+
+    // Validator du nom
+    if(!/^[0-9]{1,3}$/.test(form.hp.value)) {
+      const errorMsg: string = 'Le PV du pokémon sont compris entre 0 et 999';
+      const newField: Field = { value: form.hp.value, error: errorMsg, isValid: false };
+      newForm = { ...newForm, ...{hp: newField}};
+    } else {
+      const newField: Field = { value: form.hp.value, error: '', isValid: true };
+      newForm = { ...newForm, ...{hp: newField}};
+    }
+
+    // Validator du nom
+    if(!/^[0-9]{1,2}$/.test(form.cp.value)) {
+      const errorMsg: string = 'Le dégâts du pokémon sont compris entre 0 et 99';
+      const newField: Field = { value: form.cp.value, error: errorMsg, isValid: false };
+      newForm = { ...newForm, ...{cp: newField}};
+    } else {
+      const newField: Field = { value: form.cp.value, error: '', isValid: true };
+      newForm = { ...newForm, ...{cp: newField}};
+    }
+
+    setForm(newForm);
+    return newForm.name.isValid && newForm.hp.isValid && newForm.cp.isValid;
   }
    
+  const isTypesValid = (type: string): boolean => {
+    if(form.types.value.length === 1 && hasType(type)) {
+      return false;
+    }
+
+    if (form.types.value.length >= 3 && !hasType(type)) {
+      return false;
+    }
+
+    return true;
+  }
+
   return (
     <form onSubmit={e => handleSubmit(e)}>
       <div className="row">
@@ -85,16 +138,31 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
                 <div className="form-group">
                   <label htmlFor="name">Nom</label>
                   <input id="name" name="name" value={ form.name.value } type="text" className="form-control" onChange={e => handleInputChange(e)}></input>
+                  {form.name.error && 
+                    <div className="card-panel red accent-1">
+                      {form.name.error}
+                    </div>
+                  }
                 </div>
                 {/* Pokemon hp */}
                 <div className="form-group">
                   <label htmlFor="hp">Point de vie</label>
                   <input id="hp" name="hp" type="number" value={ form.hp.value } className="form-control" onChange={e => handleInputChange(e)}></input>
+                  {form.hp.error && 
+                    <div className="card-panel red accent-1">
+                      {form.hp.error}
+                    </div>
+                  }
                 </div>
                 {/* Pokemon cp */}
                 <div className="form-group">
                   <label htmlFor="cp">Dégâts</label>
                   <input id="cp" name="cp" type="number" value={ form.cp.value } className="form-control" onChange={e => handleInputChange(e)}></input>
+                  {form.cp.error && 
+                    <div className="card-panel red accent-1">
+                      {form.cp.error}
+                    </div>
+                  }
                 </div>
                 {/* Pokemon types */}
                 <div className="form-group">
@@ -102,7 +170,7 @@ const PokemonForm: FunctionComponent<Props> = ({pokemon}) => {
                   {types.map(type => (
                     <div key={type} style={{marginBottom: '10px'}}>
                       <label>
-                        <input id={type} type="checkbox" className="filled-in" value={type} checked={hasType(type)} onChange={e => selectType(type, e)}></input>
+                        <input id={type} type="checkbox" className="filled-in" value={type} disabled={!isTypesValid(type)} checked={hasType(type)} onChange={e => selectType(type, e)}></input>
                         <span>
                           <p className={formatType(type)}>{ type }</p>
                         </span>
